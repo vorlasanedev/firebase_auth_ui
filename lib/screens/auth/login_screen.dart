@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth_ui/screens/auth/email_verify_screen.dart';
+import 'package:firebase_auth_ui/screens/auth/forgot_password_screen.dart';
 import 'package:firebase_auth_ui/screens/auth/signup_screen.dart';
 import 'package:firebase_auth_ui/screens/home_screen.dart';
 import 'package:firebase_auth_ui/utils/show_message.dart';
@@ -47,18 +49,60 @@ class _SignupScreenState extends State<LoginScreen> {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
-      ); // Your actual signup function
-      if (!mounted) return; // Check if widget is still in widget tree
-      ShowMessage().showSuccess(context, 'Login Succesfull');
-      // Navigate to home screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
+      // Reload user info to get updated emailVerified status
+      User? user = FirebaseAuth.instance.currentUser;
+      await user?.reload();
+      user = FirebaseAuth.instance.currentUser;
+
+      if (user != null && user.emailVerified) {
+        // Email verified, proceed
+        // if (!mounted) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+          ShowMessage().showSuccess(context, 'Login Successful');
+        });
+      } else {
+        // if (!mounted) return; // guard against disposed State
+        // Email not verified
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EmailVerificationScreen()),
+          );
+        });
+      }
     } on FirebaseAuthException catch (e) {
-      ShowMessage().showError(context, e.message ?? 'Login failed');
+      // print('FirebaseAuthException: ${e.code}, ${e.message}');
+      String message;
+      if (e.code == 'invalid-credential') {
+        message = 'Invalid or expired credential. Please try again.';
+      } else {
+        switch (e.code) {
+          case 'wrong-password':
+            message = 'Incorrect password.';
+            break;
+          case 'user-not-found':
+            message = 'No account found with this email.';
+            break;
+          case 'invalid-email':
+            message = 'Email address is not valid.';
+            break;
+          default:
+            message = 'Login failed. Please try again.';
+        }
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ShowMessage().showError(context, message);
+      });
     } catch (e) {
-      ShowMessage().showError(context, 'An unexpected error occurred');
+      // print('Exception: $e');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ShowMessage().showError(context, 'An unexpected error occurred');
+      });
     } finally {
       if (mounted) {
         setState(() {
@@ -110,6 +154,18 @@ class _SignupScreenState extends State<LoginScreen> {
                 },
               ),
               SizedBox(height: 24),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ForgotPasswordScreen(),
+                    ),
+                  );
+                },
+                child: Text('Forgot Password?'),
+              ),
+
               SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _loading ? null : _login,

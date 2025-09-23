@@ -1,4 +1,4 @@
-import 'package:firebase_auth_ui/screens/auth/login_screen.dart';
+import 'package:firebase_auth_ui/screens/auth/auth_wrapper.dart';
 import 'package:firebase_auth_ui/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,8 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: AuthWrapper(),
+      // home: LoginScreen(),
       // home: SignupScreen(),
     );
   }

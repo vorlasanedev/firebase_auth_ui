@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth_ui/screens/auth/email_verify_screen.dart';
 import 'package:firebase_auth_ui/screens/auth/login_screen.dart';
-import 'package:firebase_auth_ui/screens/home_screen.dart';
 import 'package:firebase_auth_ui/utils/show_message.dart';
 import 'package:flutter/material.dart';
 
@@ -47,18 +47,28 @@ class _SignupScreenState extends State<SignupScreen> {
     final password = _passwordController.text.trim();
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      ); // Your actual signup function
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+          ); // Your actual signup function
+
+      // Send email verification
+      await userCredential.user?.sendEmailVerification();
+
       if (!mounted) return; // Check if widget is still in widget tree
-      ScaffoldMessenger.of(
+      ShowMessage().showSuccess(
         context,
-      ).showSnackBar(SnackBar(content: Text('Signup Successful')));
+        'Signup successful! Please verify your email.',
+      );
+
+      // ScaffoldMessenger.of(
+      //   context,
+      // ).showSnackBar(SnackBar(content: Text('Signup Successful')));
       // Navigate to home screen
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => LoginScreen()),
       );
     } on FirebaseAuthException catch (e) {
       ShowMessage().showError(context, e.message ?? 'Register failed');

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_ui/screens/auth/login_screen.dart';
+import 'package:firebase_auth_ui/utils/show_message.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,13 +22,13 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
 
-              if (!mounted) return;
-
-              // Use context only here and nowhere else
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
-              );
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                // if (!mounted) return;
+                ShowMessage().showSuccess(context, 'Logout Successful');
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => LoginScreen()),
+                );
+              });
             },
           ),
         ],
