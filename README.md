@@ -64,3 +64,9 @@ firebase_auth (for screen)
 ```
 help me build the signup screen for email and password authentication in flutter
 ```
+
+## Enable email and password provider on firebase project
+<img src="screenshot/enabel_email_password_fb_project.png">
+<img src="screenshot/email_password.png">
+<img src="screenshot/email_save.png">
+<img src="screenshot/signup_done.png">

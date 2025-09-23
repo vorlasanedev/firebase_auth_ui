@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth_ui/utils/show_error.dart';
+import 'package:firebase_auth_ui/screens/auth/login_screen.dart';
+import 'package:firebase_auth_ui/screens/home_screen.dart';
+import 'package:firebase_auth_ui/utils/show_message.dart';
 import 'package:flutter/material.dart';
 
 // Mock functions to simulate sign-up logic
@@ -13,6 +15,9 @@ Future<void> signUp(String email, String password) async {
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
+  // static Route<void> route() {
+  //   return MaterialPageRoute(builder: (_) => SignupScreen());
+  // }
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -42,15 +47,21 @@ class _SignupScreenState extends State<SignupScreen> {
     final password = _passwordController.text.trim();
 
     try {
-      await signUp(email, password); // Your actual signup function
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      ); // Your actual signup function
       if (!mounted) return; // Check if widget is still in widget tree
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Signup Successful')));
       // Navigate to home screen
-      Navigator.of(context).pushReplacementNamed('/home');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
     } on FirebaseAuthException catch (e) {
-      ShowError().showError(context, e.toString());
+      ShowMessage().showError(context, e.message ?? 'Register failed');
     } finally {
       if (mounted) {
         setState(() {
@@ -111,6 +122,20 @@ class _SignupScreenState extends State<SignupScreen> {
                       ? CircularProgressIndicator(color: Colors.white)
                       : Text('Sign Up'),
                 ),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Navigate to Register screen
+                  // Navigator.of(
+                  //   context,
+                  // ).pushAndRemoveUntil(LoginScreen.route(), (route) => false);
+                  // or
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
+                child: Text('I Already have an account? Login'),
               ),
             ],
           ),
