@@ -60,3 +60,7 @@ select pubspecassist
 firebase_core
 firebase_auth (for screen)
 ```
+## ChatGPT
+```
+help me build the signup screen for email and password authentication in flutter
+```
